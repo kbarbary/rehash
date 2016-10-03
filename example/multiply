@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+"""Read one number from each file and take the product; write result to last file"""
+
+import sys
+
+product = 1.0
+for fname in sys.argv[1:-1]:
+    with open(fname, 'r') as f:
+        contents = f.read()
+        product *= float(contents)
+
+with open(sys.argv[-1], 'w') as f:
+    f.write("{:f}\n".format(product))
