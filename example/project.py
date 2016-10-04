@@ -17,7 +17,7 @@ def task_sum():
 
         
 def task_multiply():
-    infiles = ['sum{:d}.txt' for i in [1, 2]]
+    infiles = ['sum{:d}.txt'.format(i) for i in [1, 2]]
     outfile = 'result.txt'
     return {'action': 'multiply {} {}'.format(' '.join(infiles), outfile),
             'deps': ['multiply'],

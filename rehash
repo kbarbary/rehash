@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+import inspect
+import sys
+import importlib
+import os
+
+__version__ = "0.0.0"
+
+
+class Task(object):
+    def __init__(self, action, inputs, outputs, deps):
+        self.action = action
+        self.inputs = inputs
+        self.outputs = outputs
+        self.deps = deps
+
+    def __repr__(self):
+        return "Task(action={!r}, inputs={!r}, ouputs={!r})".format(self.action, self.inputs, self.outputs)
+
+
+def collect():
+    tasks = []
+    sys.path.insert(0, os.getcwd())
+    module = importlib.import_module('project')
+    members = inspect.getmembers(module)
+    for name, val in members:
+        if name.startswith("task_") and inspect.isfunction(val):
+            result = val()
+            if inspect.isgenerator(result):
+                for d in result:
+                    tasks.append(Task(**d))
+            else:
+                tasks.append(Task(**result))
+
+    return tasks
+
+
+def hash_task(task):
+    # For a task to not need to be re-run, the following must be the same:
+    # - deps and their versions
+    # - input names and their timestamps
+    h = hashlib.sha256()
+
+    # for each string do h.update(s.encode())
+    # finally return h.hexdigest()
+
+
+def main(argv=None):
+    parser = ArgumentParser(prog="rehash", description="Run many tasks.")
+    parser.add_argument("projectfile",
+                        help="Python file describing workflow.")
+    args = parser.parse_args(argv)
+
+    tasks = collect()
+    for t in tasks:
+        print(t)
+
+if __name__ == '__main__':
+    sys.exit(main())
